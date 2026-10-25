@@ -1,0 +1,19 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "types": [
+      "node"
+    ],
+    "noEmit": true,
+    "lib": [
+      "ES2023",
+      "DOM"
+    ]
+  },
+  "include": [
+    "playwright.config.ts",
+    "tests"
+  ]
+}

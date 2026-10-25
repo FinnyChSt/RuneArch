@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RuneArch</title>
+  <meta name="description" content="Design a whole feature on one canvas: screens, endpoints, services, tables and the flows that connect them. Export OpenAPI, SQL, starter code, migrations and briefs." />
+  <meta property="og:title" content="RuneArch: design a feature end to end" />
+  <meta property="og:description" content="Screens, endpoints, services, tables and the flows between them on one canvas, exported as OpenAPI, SQL, code, migrations and briefs." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://finnychst.github.io/RuneArch/assets/logo.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#0a1a38" />
+  <link rel="icon" type="image/png" href="assets/icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0a1a38;
+      --bg-deep: #071430;
+      --surface: #10264b;
+      --surface-raised: #163159;
+      --border: #22406e;
+      --text: #eaf1fb;
+      --text-muted: #9fb2cf;
+      --blue: #4596f3;
+      --teal: #3fe0c5;
+      /* Node lanes, as in the app */
+      --fe: #6fc3b8;
+      --be: #a79be0;
+      --db: #e0b46f;
+      --danger: #e07a7a;
+      --get: #6fcf97;
+      --radius: 14px;
+      --font: 'Inter', ui-sans-serif, system-ui, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.6 var(--font);
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--teal); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--mono); font-size: 0.88em; }
+    img { max-width: 100%; display: block; }
+
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+    @media (min-width: 720px) { .wrap { padding: 0 32px; } }
+
+    /* ---------- Nav ---------- */
+    nav {
+      position: sticky; top: 0; z-index: 10;
+      background: color-mix(in srgb, var(--bg) 85%, transparent);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+    }
+    nav .wrap { display: flex; align-items: center; gap: 24px; height: 60px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; color: var(--text); }
+    .brand:hover { text-decoration: none; }
+    .brand img { width: 28px; height: 28px; border-radius: 7px; }
+    .brand span { color: var(--blue); }
+    .nav-links { display: none; gap: 22px; margin-left: auto; font-size: 14px; }
+    .nav-links a { color: var(--text-muted); }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+    @media (min-width: 820px) { .nav-links { display: flex; } }
+    .nav-gh { margin-left: auto; }
+    @media (min-width: 820px) { .nav-gh { margin-left: 0; } }
+
+    /* ---------- Buttons ---------- */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 18px; border-radius: 10px; font-weight: 600; font-size: 15px;
+      border: 1px solid var(--border); color: var(--text); background: var(--surface);
+      transition: background 0.15s, border-color 0.15s, transform 0.15s;
+    }
+    .btn:hover { text-decoration: none; background: var(--surface-raised); transform: translateY(-1px); }
+    .btn-primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .btn-primary:hover { background: #5aa4f6; }
+    .btn-sm { padding: 6px 12px; font-size: 13px; }
+    .btn svg { width: 18px; height: 18px; }
+
+    /* ---------- Hero ---------- */
+    .hero { padding: 56px 0 24px; text-align: center; }
+    .hero-logo {
+      max-width: 520px; margin: 0 auto 28px; border-radius: 20px; overflow: hidden;
+      box-shadow: 0 30px 80px -30px rgba(69, 150, 243, 0.45);
+    }
+    h1 {
+      font-size: clamp(30px, 5vw, 52px); line-height: 1.12; letter-spacing: -0.02em;
+      margin: 0 auto 18px; max-width: 860px; font-weight: 800;
+    }
+    h1 em { font-style: normal; background: linear-gradient(90deg, var(--blue), var(--teal)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .lede { font-size: clamp(17px, 2vw, 20px); color: var(--text-muted); max-width: 720px; margin: 0 auto 30px; }
+    .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .note { margin-top: 16px; font-size: 13px; color: var(--text-muted); }
+
+    /* ---------- Canvas illustration ---------- */
+    .canvas-shot {
+      margin: 48px auto 0; max-width: 1040px;
+      background: var(--bg-deep);
+      background-image: radial-gradient(circle, #1d355e 1px, transparent 1px);
+      background-size: 22px 22px;
+      border: 1px solid var(--border); border-radius: 18px;
+      padding: 12px; overflow-x: auto;
+    }
+    .canvas-shot svg { display: block; width: 100%; min-width: 680px; height: auto; }
+    .flow-path { stroke-dasharray: 8 7; animation: march 1.2s linear infinite; }
+    @keyframes march { to { stroke-dashoffset: -15; } }
+    @media (prefers-reduced-motion: reduce) {
+      .flow-path { animation: none; }
+      html { scroll-behavior: auto; }
+      .btn:hover { transform: none; }
+    }
+    .caption { text-align: center; color: var(--text-muted); font-size: 14px; margin-top: 12px; }
+
+    /* ---------- Sections ---------- */
+    section { padding: 80px 0 0; }
+    .eyebrow { color: var(--teal); font-weight: 600; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; margin: 0 0 10px; }
+    h2 { font-size: clamp(26px, 3.4vw, 38px); line-height: 1.2; letter-spacing: -0.015em; margin: 0 0 14px; font-weight: 700; }
+    .section-lede { color: var(--text-muted); font-size: 18px; max-width: 720px; margin: 0 0 36px; }
+    h3 { font-size: 18px; margin: 0 0 8px; font-weight: 600; }
+    .card p, .step p { margin: 0; color: var(--text-muted); font-size: 15px; }
+
+    .grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+    @media (min-width: 640px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 960px) { .grid-3 { grid-template-columns: repeat(3, 1fr); } .grid-4 { grid-template-columns: repeat(4, 1fr); } }
+
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 22px;
+    }
+    .card .like { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+    .card .like b { color: var(--text); font-weight: 600; }
+    .dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; vertical-align: 1px; }
+
+    /* Steps */
+    .steps { counter-reset: step; display: grid; gap: 16px; grid-template-columns: 1fr; }
+    @media (min-width: 900px) { .steps { grid-template-columns: repeat(5, 1fr); } }
+    .step { position: relative; padding: 22px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+    .step::before {
+      counter-increment: step; content: counter(step);
+      display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; margin-bottom: 14px;
+      background: color-mix(in srgb, var(--blue) 22%, transparent); color: var(--blue); font-weight: 700; font-size: 14px;
+    }
+
+    /* Feature roles */
+    .badge {
+      display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+      padding: 2px 8px; border-radius: 5px; border: 1px solid; margin-bottom: 12px;
+    }
+    .badge-existing { color: var(--text-muted); border-color: var(--border); }
+    .badge-new { color: var(--bg-deep); background: var(--teal); border-color: var(--teal); }
+    .badge-changed { color: var(--teal); border-color: var(--teal); }
+    .badge-removed { color: var(--danger); border-color: var(--danger); }
+    .split { display: grid; gap: 24px; grid-template-columns: 1fr; margin-top: 24px; }
+    @media (min-width: 900px) { .split { grid-template-columns: 1fr 1fr; } }
+    ul.checks { list-style: none; margin: 0; padding: 0; }
+    ul.checks li { position: relative; padding-left: 26px; margin: 0 0 10px; color: var(--text-muted); font-size: 15px; }
+    ul.checks li::before { content: ''; position: absolute; left: 2px; top: 8px; width: 12px; height: 7px; border-left: 2px solid var(--teal); border-bottom: 2px solid var(--teal); transform: rotate(-45deg); }
+    ul.checks li b { color: var(--text); font-weight: 600; }
+    ul.warn li::before { border: 0; width: 8px; height: 8px; top: 9px; border-radius: 50%; background: var(--db); transform: none; }
+
+    /* Exports */
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .chip { font: 500 12px var(--mono); padding: 3px 8px; border-radius: 6px; background: var(--bg-deep); border: 1px solid var(--border); color: var(--text-muted); }
+    .live {
+      margin-top: 20px; padding: 20px 22px; border-radius: var(--radius);
+      border: 1px dashed var(--border); color: var(--text-muted); font-size: 15px;
+    }
+    .live code { color: var(--text); word-break: break-all; }
+
+    /* Getting started */
+    .code-card { background: var(--bg-deep); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .code-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--surface); }
+    .code-head h3 { margin: 0; font-size: 15px; }
+    .code-head p { margin: 2px 0 0; font-size: 13px; color: var(--text-muted); }
+    pre { margin: 0; padding: 16px; overflow-x: auto; font: 13.5px/1.7 var(--mono); color: var(--text); }
+    pre .c { color: #6f86a8; }
+    .copy { cursor: pointer; font-family: var(--font); }
+
+    .callout {
+      margin-top: 24px; padding: 18px 20px; border-radius: var(--radius);
+      background: color-mix(in srgb, var(--db) 10%, transparent); border: 1px solid color-mix(in srgb, var(--db) 40%, transparent);
+      font-size: 15px; color: var(--text-muted);
+    }
+    .callout b { color: var(--text); }
+
+    /* Footer */
+    footer { margin-top: 96px; border-top: 1px solid var(--border); padding: 32px 0 48px; color: var(--text-muted); font-size: 14px; }
+    footer .wrap { display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: center; justify-content: space-between; }
+    footer .links { display: flex; gap: 20px; flex-wrap: wrap; }
+    footer a { color: var(--text-muted); }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="wrap">
+      <a class="brand" href="#top"><img src="assets/icon.png" alt="" />Rune<span>Arch</span></a>
+      <div class="nav-links">
+        <a href="#what">What it is</a>
+        <a href="#how">How it works</a>
+        <a href="#features">Feature scopes</a>
+        <a href="#exports">Exports</a>
+        <a href="#start">Get started</a>
+      </div>
+      <a class="btn btn-sm nav-gh" href="https://github.com/FinnyChSt/RuneArch">
+        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </nav>
+
+  <main id="top">
+    <!-- ================= Hero ================= -->
+    <header class="hero">
+      <div class="wrap">
+        <div class="hero-logo"><img src="assets/logo.png" alt="RuneArch: Design. Connect. Build." width="1200" height="600" /></div>
+        <h1>Design a whole feature on <em>one canvas</em>, then hand it off.</h1>
+        <p class="lede">
+          Screens, endpoints, services, tables and the flows that connect them, in one place.
+          Export the result as an OpenAPI spec, a database schema, starter code, a migration
+          or a brief you can give to a developer or an AI.
+        </p>
+        <div class="cta">
+          <a class="btn btn-primary" href="#start">Get started</a>
+          <a class="btn" href="https://github.com/FinnyChSt/RuneArch">View on GitHub</a>
+        </div>
+        <p class="note">Open source · Apache 2.0 · Runs on your machine with Docker</p>
+
+        <div class="canvas-shot" role="img" aria-label="Example canvas: a Cart screen's Place order button calls POST /orders, which uses OrderService, which writes the orders table. The orders table is marked new and references users by foreign key.">
+          <svg viewBox="0 0 960 420" xmlns="http://www.w3.org/2000/svg" font-family="Inter, system-ui, sans-serif" aria-hidden="true">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0 0L10 5L0 10z" fill="#3fe0c5" />
+              </marker>
+              <marker id="arrow-dim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0 0L10 5L0 10z" fill="#5b7398" />
+              </marker>
+            </defs>
+
+            <!-- Lanes -->
+            <g font-size="12" font-weight="600" letter-spacing="1">
+              <rect x="16" y="16" width="290" height="388" rx="14" fill="#6fc3b8" fill-opacity="0.05" stroke="#6fc3b8" stroke-opacity="0.35" stroke-dasharray="4 5" />
+              <text x="34" y="42" fill="#6fc3b8">FRONTEND</text>
+              <rect x="326" y="16" width="304" height="388" rx="14" fill="#a79be0" fill-opacity="0.05" stroke="#a79be0" stroke-opacity="0.35" stroke-dasharray="4 5" />
+              <text x="344" y="42" fill="#a79be0">BACKEND</text>
+              <rect x="650" y="16" width="294" height="388" rx="14" fill="#e0b46f" fill-opacity="0.05" stroke="#e0b46f" stroke-opacity="0.35" stroke-dasharray="4 5" />
+              <text x="668" y="42" fill="#e0b46f">DATABASE</text>
+            </g>
+
+            <!-- Screen with wireframe -->
+            <g>
+              <rect x="44" y="70" width="234" height="236" rx="12" fill="#10264b" stroke="#6fc3b8" stroke-width="1.5" />
+              <text x="60" y="94" fill="#eaf1fb" font-size="14" font-weight="600">Cart</text>
+              <text x="262" y="94" fill="#9fb2cf" font-size="11" text-anchor="end" font-family="JetBrains Mono, monospace">/cart</text>
+              <rect x="58" y="106" width="206" height="186" rx="6" fill="#0b1d3d" stroke="#22406e" />
+              <rect x="70" y="118" width="182" height="14" rx="3" fill="#22406e" />
+              <rect x="70" y="144" width="120" height="8" rx="3" fill="#2b4a7a" />
+              <rect x="210" y="144" width="42" height="8" rx="3" fill="#2b4a7a" />
+              <rect x="70" y="162" width="100" height="8" rx="3" fill="#2b4a7a" />
+              <rect x="210" y="162" width="42" height="8" rx="3" fill="#2b4a7a" />
+              <rect x="70" y="180" width="134" height="8" rx="3" fill="#2b4a7a" />
+              <rect x="210" y="180" width="42" height="8" rx="3" fill="#2b4a7a" />
+              <line x1="70" y1="202" x2="252" y2="202" stroke="#22406e" />
+              <rect x="70" y="212" width="60" height="8" rx="3" fill="#3a5a8c" />
+              <rect x="210" y="212" width="42" height="8" rx="3" fill="#3a5a8c" />
+              <rect x="70" y="246" width="182" height="30" rx="6" fill="#3fe0c5" fill-opacity="0.16" stroke="#3fe0c5" stroke-width="1.5" />
+              <text x="161" y="266" fill="#3fe0c5" font-size="12" font-weight="600" text-anchor="middle">Place order</text>
+            </g>
+
+            <!-- Endpoint -->
+            <g>
+              <rect x="356" y="86" width="244" height="62" rx="12" fill="#10264b" stroke="#a79be0" stroke-width="1.5" />
+              <rect x="372" y="104" width="48" height="24" rx="5" fill="#4596f3" fill-opacity="0.2" />
+              <text x="396" y="121" fill="#7fb6f7" font-size="12" font-weight="700" text-anchor="middle" font-family="JetBrains Mono, monospace">POST</text>
+              <text x="432" y="122" fill="#eaf1fb" font-size="15" font-family="JetBrains Mono, monospace">/orders</text>
+            </g>
+
+            <!-- Service -->
+            <g>
+              <rect x="356" y="244" width="244" height="72" rx="12" fill="#10264b" stroke="#a79be0" stroke-width="1.5" />
+              <text x="374" y="272" fill="#eaf1fb" font-size="14" font-weight="600">OrderService</text>
+              <text x="374" y="296" fill="#9fb2cf" font-size="12" font-family="JetBrains Mono, monospace">placeOrder()</text>
+            </g>
+
+            <!-- orders table (new in the feature) -->
+            <g font-family="JetBrains Mono, monospace" font-size="12">
+              <rect x="684" y="62" width="230" height="140" rx="12" fill="#10264b" stroke="#3fe0c5" stroke-width="2" />
+              <path d="M684 74a12 12 0 0 1 12-12h206a12 12 0 0 1 12 12v18h-230z" fill="#e0b46f" fill-opacity="0.14" />
+              <text x="700" y="82" fill="#eaf1fb" font-size="14" font-weight="600" font-family="Inter, sans-serif">orders</text>
+              <rect x="862" y="70" width="40" height="17" rx="4" fill="#3fe0c5" />
+              <text x="882" y="82" fill="#071430" font-size="10" font-weight="700" text-anchor="middle" font-family="Inter, sans-serif">NEW</text>
+              <text x="700" y="114" fill="#e0b46f">🔑</text><text x="718" y="114" fill="#eaf1fb">id</text><text x="898" y="114" fill="#9fb2cf" text-anchor="end">uuid</text>
+              <text x="718" y="140" fill="#eaf1fb">user_id</text><text x="898" y="140" fill="#9fb2cf" text-anchor="end">uuid</text>
+              <text x="718" y="166" fill="#eaf1fb">total</text><text x="898" y="166" fill="#9fb2cf" text-anchor="end">numeric</text>
+              <text x="718" y="190" fill="#eaf1fb">created_at</text><text x="898" y="190" fill="#9fb2cf" text-anchor="end">timestamptz</text>
+            </g>
+
+            <!-- users table (existing) -->
+            <g font-family="JetBrains Mono, monospace" font-size="12">
+              <rect x="684" y="256" width="230" height="114" rx="12" fill="#10264b" stroke="#e0b46f" stroke-width="1.5" />
+              <path d="M684 268a12 12 0 0 1 12-12h206a12 12 0 0 1 12 12v18h-230z" fill="#e0b46f" fill-opacity="0.14" />
+              <text x="700" y="276" fill="#eaf1fb" font-size="14" font-weight="600" font-family="Inter, sans-serif">users</text>
+              <rect x="838" y="264" width="64" height="17" rx="4" fill="none" stroke="#5b7398" />
+              <text x="870" y="276" fill="#9fb2cf" font-size="10" font-weight="700" text-anchor="middle" font-family="Inter, sans-serif">EXISTING</text>
+              <text x="700" y="308" fill="#e0b46f">🔑</text><text x="718" y="308" fill="#eaf1fb">id</text><text x="898" y="308" fill="#9fb2cf" text-anchor="end">uuid</text>
+              <text x="718" y="334" fill="#eaf1fb">email</text><text x="898" y="334" fill="#9fb2cf" text-anchor="end">citext</text>
+              <text x="718" y="358" fill="#eaf1fb">name</text><text x="898" y="358" fill="#9fb2cf" text-anchor="end">text</text>
+            </g>
+
+            <!-- FK: orders.user_id -> users.id -->
+            <path d="M914 136 C 948 136, 948 304, 918 304" fill="none" stroke="#5b7398" stroke-width="1.5" stroke-dasharray="3 4" marker-end="url(#arrow-dim)" />
+            <text x="940" y="224" fill="#7d93b6" font-size="10" font-family="JetBrains Mono, monospace" text-anchor="middle" transform="rotate(90 940 224)">fk</text>
+
+            <!-- Flow "Checkout" -->
+            <g fill="none" stroke="#3fe0c5" stroke-width="2.5" stroke-linecap="round">
+              <path class="flow-path" d="M252 261 C 310 261, 300 117, 352 117" marker-end="url(#arrow)" />
+              <path class="flow-path" d="M478 148 L 478 240" marker-end="url(#arrow)" />
+              <path class="flow-path" d="M600 280 C 650 280, 630 132, 680 132" marker-end="url(#arrow)" />
+            </g>
+            <g font-size="11" font-weight="700" text-anchor="middle">
+              <circle cx="302" cy="188" r="12" fill="#3fe0c5" /><text x="302" y="192" fill="#071430">1</text>
+              <text x="302" y="216" fill="#9fb2cf" font-weight="500">calls</text>
+              <circle cx="478" cy="194" r="12" fill="#3fe0c5" /><text x="478" y="198" fill="#071430">2</text>
+              <circle cx="640" cy="206" r="12" fill="#3fe0c5" /><text x="640" y="210" fill="#071430">3</text>
+              <text x="640" y="234" fill="#9fb2cf" font-weight="500">writes</text>
+            </g>
+
+            <!-- Flow label -->
+            <g>
+              <rect x="356" y="350" width="244" height="36" rx="18" fill="#3fe0c5" fill-opacity="0.12" stroke="#3fe0c5" stroke-opacity="0.5" />
+              <text x="478" y="373" fill="#3fe0c5" font-size="13" font-weight="600" text-anchor="middle">▶ Flow: Checkout · 3 steps</text>
+            </g>
+          </svg>
+        </div>
+        <p class="caption">A "Checkout" flow from the button a user clicks, through the API, down to the table it writes.</p>
+      </div>
+    </header>
+
+    <!-- ================= What it is ================= -->
+    <section id="what">
+      <div class="wrap">
+        <p class="eyebrow">What it is</p>
+        <h2>Ideas from tools you already know, in one model</h2>
+        <p class="section-lede">
+          RuneArch is for the moment <b>before</b> you write code: when you want to see how a feature crosses the
+          frontend, the backend and the database, agree on it, and hand it off in formats people and tools already understand.
+        </p>
+        <div class="grid grid-3">
+          <div class="card">
+            <div class="like">Like <b>dbdiagram</b></div>
+            <h3><span class="dot" style="background:var(--db)"></span>Tables</h3>
+            <p>Typed columns, keys, indexes and foreign keys for PostgreSQL, MySQL, MariaDB or SQLite.</p>
+          </div>
+          <div class="card">
+            <div class="like">Like <b>Swagger / Apidog</b></div>
+            <h3><span class="dot" style="background:var(--be)"></span>Endpoints</h3>
+            <p>Params, request bodies, responses and reusable models, kept a valid OpenAPI 3.1 spec at all times.</p>
+          </div>
+          <div class="card">
+            <div class="like">Like <b>wireframing tools</b></div>
+            <h3><span class="dot" style="background:var(--fe)"></span>Screens</h3>
+            <p>Low-fidelity layouts on a 12-column grid, whose buttons and forms connect to the endpoints they call.</p>
+          </div>
+          <div class="card">
+            <div class="like">Like <b>Mermaid flowcharts</b></div>
+            <h3><span class="dot" style="background:var(--teal)"></span>Flows</h3>
+            <p>Named paths through the system, recorded click by click and played back step by step.</p>
+          </div>
+          <div class="card">
+            <div class="like">Like <b>Excalidraw</b></div>
+            <h3><span class="dot" style="background:#d9cfb8"></span>Sketching</h3>
+            <p>Frames, sticky notes, shapes, arrows and a pen for explaining around the design.</p>
+          </div>
+          <div class="card">
+            <div class="like">Unlike a drawing</div>
+            <h3><span class="dot" style="background:var(--blue)"></span>It's a spec</h3>
+            <p>Every box is structured data, so exports are generated live from the canvas and never drift from it.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= How it works ================= -->
+    <section id="how">
+      <div class="wrap">
+        <p class="eyebrow">How it works</p>
+        <h2>From sketch to hand-off in five steps</h2>
+        <p class="section-lede">No code required to plan. Generated code and migrations are there for a developer to review and build from.</p>
+        <div class="steps">
+          <div class="step"><h3>Create a project</h3><p>Start blank, or import tables from SQL or DBML and endpoints from OpenAPI.</p></div>
+          <div class="step"><h3>Add the parts</h3><p>Place screens, endpoints, services and tables. Double-click any of them to fill in the details.</p></div>
+          <div class="step"><h3>Connect them</h3><p>RuneArch picks what a connection means: a screen <i>calls</i>, a service <i>writes</i>, a column is a <i>foreign key</i>.</p></div>
+          <div class="step"><h3>Record flows</h3><p>Click connections in order to tell the story of a user action, then step through it with ← and →.</p></div>
+          <div class="step"><h3>Export</h3><p>Preview, copy, download or link to any format from the top bar.</p></div>
+        </div>
+        <div class="grid grid-3" style="margin-top:16px">
+          <div class="card"><h3>Undo for everything</h3><p>Every edit is one undo step, and the project autosaves a moment after each change.</p></div>
+          <div class="card"><h3>Named checkpoints</h3><p>Save "before the auth refactor" and go back to it. Restoring checkpoints the current state first.</p></div>
+          <div class="card"><h3>Validated as you type</h3><p>Duplicate routes, broken foreign keys or unknown models are flagged in the dialog before you save.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Feature scopes ================= -->
+    <section id="features">
+      <div class="wrap">
+        <p class="eyebrow">Feature scopes</p>
+        <h2>Design changes on top of an existing system</h2>
+        <p class="section-lede">
+          Most work isn't greenfield. You add a wishlist to a shop that already has users, products and orders.
+          A feature tracks exactly what it touches, while you keep designing on the same canvas.
+        </p>
+        <div class="grid grid-4">
+          <div class="card"><span class="badge badge-existing">EXISTING</span><p>Already built; the feature only uses it, like the <code>users</code> table it reads.</p></div>
+          <div class="card"><span class="badge badge-new">NEW</span><p>Added by the feature, like a <code>wishlist_items</code> table. Anything you add is tagged automatically.</p></div>
+          <div class="card"><span class="badge badge-changed">CHANGED</span><p>Existing but modified. RuneArch keeps the original, shows a diff and lets you revert any change.</p></div>
+          <div class="card"><span class="badge badge-removed">REMOVED</span><p>Retired by the feature, like an old <code>GET /favorites</code> endpoint.</p></div>
+        </div>
+        <div class="split">
+          <div class="card">
+            <h3>It warns you, never blocks you</h3>
+            <ul class="checks warn" style="margin-top:14px">
+              <li>NOT NULL columns without a default that need a <b>backfill</b></li>
+              <li><b>Breaking API changes</b>, and the version bump they call for</li>
+              <li>New endpoints nothing calls, new tables nothing reads or writes</li>
+              <li>Flows that pass through parts the feature doesn't list</li>
+              <li>Other open features that <b>conflict</b> with this one, or that it depends on</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>It hands off the whole job</h3>
+            <ul class="checks" style="margin-top:14px">
+              <li><b>Brief</b> (Markdown or JSON): goal, acceptance criteria, flows and every part with its changes. Ready for a developer or an AI coding assistant.</li>
+              <li><b>Task list</b> per lane: database, backend, frontend.</li>
+              <li><b>Migration</b> up and down, in the right order, for your database.</li>
+              <li><b>Ship</b> it to make it the plain project, or <b>discard</b> it to put everything back.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Exports ================= -->
+    <section id="exports">
+      <div class="wrap">
+        <p class="eyebrow">Exports</p>
+        <h2>Formats people and tools already use</h2>
+        <p class="section-lede">Every export can cover the whole project or be scoped to one feature, with each part marked by its role.</p>
+        <div class="grid grid-3">
+          <div class="card"><h3>API spec</h3><p>Endpoints and models as an OpenAPI 3.1 document.</p><div class="chips"><span class="chip">YAML</span><span class="chip">JSON</span></div></div>
+          <div class="card"><h3>Database schema</h3><p>Tables and foreign keys for your chosen database.</p><div class="chips"><span class="chip">SQL</span><span class="chip">DBML</span><span class="chip">Mermaid ER</span></div></div>
+          <div class="card"><h3>Starter code</h3><p>Models from your tables, schemas from your API models, an app from your endpoints.</p><div class="chips"><span class="chip">Pydantic</span><span class="chip">Zod</span><span class="chip">SQLAlchemy</span><span class="chip">SQLModel</span><span class="chip">Drizzle</span><span class="chip">Prisma</span><span class="chip">FastAPI</span></div></div>
+          <div class="card"><h3>Screens</h3><p>Each screen's layout, actions and the endpoints it calls, plus wireframe images.</p><div class="chips"><span class="chip">Markdown</span><span class="chip">JSON</span><span class="chip">SVG</span></div></div>
+          <div class="card"><h3>Canvas</h3><p>The whole board, light or dark, optionally with one flow highlighted.</p><div class="chips"><span class="chip">SVG</span><span class="chip">PNG</span><span class="chip">Mermaid</span><span class="chip">JSON</span></div></div>
+          <div class="card"><h3>Feature hand-off</h3><p>Brief, tasks and migrations for one piece of work.</p><div class="chips"><span class="chip">brief.md</span><span class="chip">tasks.md</span><span class="chip">migration.up.sql</span></div></div>
+        </div>
+        <div class="live">
+          <b style="color:var(--text)">Live URLs.</b> Every export is also served by your RuneArch instance, so other tools can read the current
+          design directly, for example <code>/api/projects/:id/openapi.yaml</code>. Each preview has a <i>Copy live URL</i> button.
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Get started ================= -->
+    <section id="start">
+      <div class="wrap">
+        <p class="eyebrow">Get started</p>
+        <h2>Run it on your machine</h2>
+        <p class="section-lede">RuneArch is self-hosted. The quickest way in needs only Docker.</p>
+        <div class="grid grid-2">
+          <div class="code-card">
+            <div class="code-head">
+              <div><h3>With Docker</h3><p>Then open localhost:8080</p></div>
+              <button class="btn btn-sm copy" data-copy="docker" type="button">Copy</button>
+            </div>
+<pre id="docker">git clone https://github.com/FinnyChSt/RuneArch.git
+cd RuneArch
+docker compose --profile app up -d --build</pre>
+          </div>
+          <div class="code-card">
+            <div class="code-head">
+              <div><h3>For development</h3><p>Node.js 24, pnpm 11, Docker · then localhost:5173</p></div>
+              <button class="btn btn-sm copy" data-copy="dev" type="button">Copy</button>
+            </div>
+<pre id="dev">git clone https://github.com/FinnyChSt/RuneArch.git
+cd RuneArch
+pnpm install
+docker compose up -d                <span class="c"># PostgreSQL</span>
+cp apps/api/.env.example apps/api/.env
+pnpm --filter api db:migrate
+pnpm --filter api db:seed           <span class="c"># local user</span>
+pnpm dev</pre>
+          </div>
+        </div>
+        <div class="callout">
+          <b>Early, working software.</b> There is no sign-in yet: everyone using an instance acts as the same local user,
+          so run it on your own machine or a private network. Two people editing the same project get a conflict notice
+          rather than a live merge. Real authentication and collaboration are planned.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div>RuneArch · Apache License 2.0</div>
+      <div class="links">
+        <a href="https://github.com/FinnyChSt/RuneArch">GitHub</a>
+        <a href="https://github.com/FinnyChSt/RuneArch#readme">README</a>
+        <a href="https://github.com/FinnyChSt/RuneArch/blob/main/ARCHITECTURE.md">Architecture</a>
+        <a href="https://github.com/FinnyChSt/RuneArch/issues">Issues</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.querySelectorAll('[data-copy]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        // Comments in the snippet are for reading; copy only the commands
+        const text = document.getElementById(button.dataset.copy).innerText.replace(/\s+#.*$/gm, '');
+        try {
+          await navigator.clipboard.writeText(text);
+          button.textContent = 'Copied';
+        } catch {
+          button.textContent = 'Select and copy';
+        }
+        setTimeout(() => (button.textContent = 'Copy'), 1800);
+      });
+    });
+  </script>
+</body>
+</html>

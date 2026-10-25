@@ -1,0 +1,64 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: flowcanvas
+      POSTGRES_PASSWORD: flowcanvas
+      POSTGRES_DB: flowcanvas
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flowcanvas"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    profiles: [app]
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://flowcanvas:flowcanvas@postgres:5432/flowcanvas
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    develop:
+      watch:
+        - { action: rebuild, path: ./apps/api, ignore: [node_modules/, dist/] }
+        - {
+            action: rebuild,
+            path: ./packages/shared,
+            ignore: [node_modules/, dist/],
+          }
+        - { action: rebuild, path: ./pnpm-lock.yaml }
+
+  web:
+    profiles: [app]
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+    develop:
+      watch:
+        - { action: rebuild, path: ./apps/web, ignore: [node_modules/, dist/] }
+        - {
+            action: rebuild,
+            path: ./packages/shared,
+            ignore: [node_modules/, dist/],
+          }
+        - { action: rebuild, path: ./pnpm-lock.yaml }
+
+volumes:
+  pgdata:

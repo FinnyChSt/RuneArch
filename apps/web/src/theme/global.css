@@ -1,0 +1,240 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+/* Expose tokens as Tailwind utilities (bg-surface, text-text-muted, border-border, ...) */
+@theme inline {
+  --color-canvas: var(--bg-canvas);
+  --color-grid-dot: var(--grid-dot);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-node-fe: var(--node-fe);
+  --color-node-be: var(--node-be);
+  --color-node-db: var(--node-db);
+  --color-node-sketch: var(--node-sketch);
+  --color-method-get: var(--method-get);
+  --color-method-post: var(--method-post);
+  --color-method-put: var(--method-put);
+  --color-method-patch: var(--method-patch);
+  --color-method-delete: var(--method-delete);
+  --color-edge: var(--edge);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --color-wire-paper: var(--wire-paper);
+  --color-wire-fill: var(--wire-fill);
+  --color-wire-line: var(--wire-line);
+  --color-wire-ink: var(--wire-ink);
+  --color-wire-strong: var(--wire-strong);
+  --font-sans: var(--font-ui);
+  --font-mono: var(--font-code);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-canvas);
+  color: var(--text);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* React Flow theming */
+.react-flow {
+  --xy-background-color: var(--bg-canvas);
+  --xy-edge-stroke: var(--edge);
+  --xy-edge-stroke-selected: var(--accent);
+  --xy-connectionline-stroke: var(--accent);
+  --xy-handle-background-color: var(--surface-raised);
+  --xy-handle-border-color: var(--text-muted);
+  --xy-minimap-background-color: var(--surface);
+  --xy-minimap-mask-background-color: color-mix(in srgb, var(--bg-canvas) 70%, transparent);
+  --xy-minimap-node-stroke-color: transparent;
+  --xy-controls-button-background-color: var(--surface);
+  --xy-controls-button-background-color-hover: var(--surface-raised);
+  --xy-controls-button-color: var(--text);
+  --xy-controls-button-color-hover: var(--text);
+  --xy-controls-button-border-color: var(--border);
+  --xy-selection-background-color: color-mix(in srgb, var(--accent) 12%, transparent);
+  --xy-selection-border: 1px dashed var(--accent);
+}
+
+.react-flow__minimap,
+.react-flow__controls {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.react-flow__handle {
+  width: 9px;
+  height: 9px;
+  opacity: 0;
+  transition: opacity 120ms;
+}
+
+.react-flow__node:hover .react-flow__handle,
+.react-flow__node.selected .react-flow__handle,
+.react-flow.connecting .react-flow__handle {
+  opacity: 1;
+}
+
+.react-flow__handle.connectingto,
+.react-flow__handle.valid {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.fc-tool-add .react-flow__pane {
+  cursor: crosshair;
+}
+
+/* Nodes named by the last save's validation errors */
+.react-flow__node.fc-invalid > div {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 35%, transparent);
+}
+
+/* Element handles on screen thumbnails: small, in the frontend color; sources only, so hidden while connecting */
+.react-flow__node .react-flow__handle.fc-el-handle {
+  width: 7px;
+  height: 7px;
+  background: var(--node-fe);
+  border-color: var(--bg-canvas);
+}
+
+.react-flow.connecting .react-flow__handle.fc-el-handle {
+  opacity: 0;
+}
+
+/* Column handles show on row hover (and while connecting), not on every node hover */
+.react-flow__node .react-flow__handle.fc-col-handle {
+  width: 7px;
+  height: 7px;
+  opacity: 0;
+}
+
+.react-flow__node .fc-col-row:hover .fc-col-handle,
+.react-flow.connecting .react-flow__handle.fc-col-handle {
+  opacity: 1;
+}
+
+.fc-col-row:hover {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+/* Active flow: its nodes and edges stay, everything else steps back */
+.react-flow__node,
+.react-flow__edge {
+  transition: opacity 150ms;
+}
+
+.react-flow__node.is-dimmed {
+  opacity: 0.3;
+}
+
+.react-flow__edge.is-dimmed {
+  opacity: 0.2;
+}
+
+/* While recording, dimmed things stay clickable and readable; next possible steps stand out */
+.fc-recording .react-flow__node.is-dimmed,
+.fc-recording .react-flow__edge.is-dimmed {
+  opacity: 0.55;
+}
+
+.fc-recording .react-flow__edge.is-candidate .react-flow__edge-path {
+  stroke: var(--text) !important;
+  stroke-width: 2 !important;
+}
+
+/* Step at the playhead */
+.fc-edge-current {
+  stroke-dasharray: 8 6;
+  animation: fc-flow-march 0.6s linear infinite;
+}
+
+.fc-step-current {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--text) 35%, transparent);
+}
+
+@keyframes fc-flow-march {
+  to {
+    stroke-dashoffset: -14;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fc-edge-current {
+    animation: none;
+  }
+}
+
+/* Arrow tool: every node shows its handles, so arrows can start anywhere */
+.fc-tool-arrow .react-flow__handle {
+  opacity: 1;
+}
+
+/* Highlighted feature: role badges on its items (--feature-color is set on the canvas) */
+.react-flow__node.fc-feat::after {
+  position: absolute;
+  top: -9px;
+  right: 8px;
+  padding: 0 5px;
+  border: 1px solid var(--feature-color, var(--accent));
+  border-radius: 4px;
+  background: var(--bg-canvas);
+  color: var(--feature-color, var(--accent));
+  font: 600 9px/14px var(--font-ui);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.react-flow__node.fc-feat-added::after {
+  content: 'New';
+  background: var(--feature-color, var(--accent));
+  color: var(--bg-canvas);
+}
+
+.react-flow__node.fc-feat-changed::after {
+  content: 'Changed';
+}
+
+.react-flow__node.fc-feat-uses::after {
+  content: 'Existing';
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+
+.react-flow__node.fc-feat-removed::after {
+  content: 'Removed';
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.react-flow__node.fc-feat-added > div,
+.react-flow__node.fc-feat-changed > div {
+  border-color: var(--feature-color, var(--accent));
+}
+
+.react-flow__node.fc-feat-removed > div {
+  border-style: dashed;
+  border-color: var(--danger);
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+
+.react-flow__edge.fc-feat-removed .react-flow__edge-path {
+  stroke: var(--danger) !important;
+  stroke-dasharray: 4 4;
+  opacity: 0.7;
+}

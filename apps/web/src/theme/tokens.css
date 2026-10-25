@@ -1,0 +1,46 @@
+/* Design tokens — the only place colors are defined (see docs/design.md) */
+:root {
+  --bg-canvas: #1B2635;
+  --grid-dot: #2A3A50;
+  --surface: #243347;
+  --surface-raised: #2C3E55;
+  --border: #3A4D66;
+  --accent: #7FA7D9;
+  --text: #E6EDF5;
+  --text-muted: #9AABC0;
+
+  --node-fe: #6FC3B8;
+  --node-be: #A79BE0;
+  --node-db: #E0B46F;
+  --node-sketch: #D9CFB8;
+
+  --method-get: #6FCF97;
+  --method-post: #7FA7D9;
+  --method-put: #E0B46F;
+  --method-patch: #E0B46F;
+  --method-delete: #E07A7A;
+
+  --edge: #6B7F99;
+  --danger: #E07A7A;
+  --warning: #E0B46F;
+
+  /* Flow palette: soft, distinct on the dusk canvas; flows store the key (e.g. 'violet') */
+  --flow-teal: #6FC3B8;
+  --flow-violet: #A79BE0;
+  --flow-amber: #E0B46F;
+  --flow-blue: #7FA7D9;
+  --flow-rose: #E08BA8;
+  --flow-green: #8FCB7F;
+  --flow-orange: #E6956A;
+  --flow-sky: #72C6E6;
+
+  /* Wireframes on screen nodes: monochrome, low-fidelity */
+  --wire-paper: #1F2D3F;
+  --wire-fill: #2E4058;
+  --wire-line: #4E6482;
+  --wire-ink: #A9B8CA;
+  --wire-strong: #D3DDE8;
+
+  --font-ui: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-code: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+}
